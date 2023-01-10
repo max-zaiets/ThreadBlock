@@ -2,23 +2,25 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
-  * Методы setLocation класса Plane и getMap класса Dispatcher,
-  * являются синхронизированными и вызывают внутри себя синхронизированные
-  * методы других классов, что должно вызывать блокировку
+ * Методы setLocation класса Plane и getMap класса Dispatcher,
+ * являются синхронизированными и вызывают внутри себя синхронизированные
+ * методы других классов, что должно вызывать блокировку
  */
 
 public class PlaneDispatching {
     public static void main(String[] args) {
         Dispatcher dispatcher = new Dispatcher();
         Plane plane = new Plane(dispatcher);
-        dispatcher.requestLanding(plane);
+
 
         Point point1 = new Point(1154, 3358);
         Point point2 = new Point(1569, 2489);
+        Image image = new Image(plane);
+
         plane.setLocation(point1);
         plane.setDestination(point2);
 
-        Image image = new Image(plane);
+        dispatcher.requestLanding(plane);
         image.drawMarker(point1);
 
         Thread1 thread1 = new Thread1(dispatcher, plane);
@@ -28,6 +30,7 @@ public class PlaneDispatching {
         thread2.start();
     }
 }
+
 
 class Thread1 extends Thread {
     private Dispatcher dis;
@@ -44,6 +47,7 @@ class Thread1 extends Thread {
     }
 }
 
+
 class Thread2 extends Thread {
     private Plane plane;
     private Point location;
@@ -58,6 +62,7 @@ class Thread2 extends Thread {
         plane.setLocation(location);
     }
 }
+
 
 class Point {
     private int x;

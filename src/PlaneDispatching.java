@@ -1,14 +1,20 @@
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+  * Методы setLocation класса Plane и getMap класса Dispatcher,
+  * являются синхронизированными и вызывают внутри себя синхронизированные
+  * методы других классов, что должно вызывать блокировку
+ */
+
 public class PlaneDispatching {
     public static void main(String[] args) {
         Dispatcher dispatcher = new Dispatcher();
         Plane plane = new Plane(dispatcher);
         dispatcher.requestLanding(plane);
 
-        Point point1 = new Point(1154,3358);
-        Point point2 = new Point(1569,2489);
+        Point point1 = new Point(1154, 3358);
+        Point point2 = new Point(1569, 2489);
         plane.setLocation(point1);
         plane.setDestination(point2);
 
@@ -16,14 +22,14 @@ public class PlaneDispatching {
         image.drawMarker(point1);
 
         Thread1 thread1 = new Thread1(dispatcher, plane);
-        Thread2 thread2 = new Thread2(plane,point1);
+        Thread2 thread2 = new Thread2(plane, point1);
 
         thread1.start();
         thread2.start();
     }
 }
 
-class Thread1 extends Thread{
+class Thread1 extends Thread {
     private Dispatcher dis;
     private Plane plane;
 
@@ -33,12 +39,12 @@ class Thread1 extends Thread{
     }
 
     @Override
-    public void run(){
+    public void run() {
         dis.getMap(plane);
     }
 }
 
-class Thread2 extends Thread{
+class Thread2 extends Thread {
     private Plane plane;
     private Point location;
 
@@ -48,12 +54,12 @@ class Thread2 extends Thread{
     }
 
     @Override
-    public void run(){
+    public void run() {
         plane.setLocation(location);
     }
 }
 
-class Point{
+class Point {
     private int x;
     private int y;
 
@@ -86,22 +92,18 @@ class Point{
 }
 
 
-
-
-class Image{
+class Image {
     private Plane plane;
 
     public Image(Plane plane) {
         this.plane = plane;
     }
 
-    public void drawMarker(Point location){
-        System.out.println("Map drawn for plane number " +  plane.getId() + " from point " + plane.getLocation() +
-                " to point " + plane.getDestination() );
+    public void drawMarker(Point location) {
+        System.out.println("Map drawn for plane number " + plane.getId() + " from point " + plane.getLocation() +
+                " to point " + plane.getDestination());
     }
 }
-
-
 
 
 class Plane {
@@ -123,17 +125,18 @@ class Plane {
         this.id = id;
     }
 
-    public Point getDestination(){
+    public Point getDestination() {
         return destination;
     }
 
-    public void setDestination(Point destination){
+    public void setDestination(Point destination) {
         this.destination = destination;
     }
 
     public synchronized Point getLocation() {
         return location;
     }
+
     public synchronized void setLocation(Point location) {
         this.location = location;
         if (location.equals(destination))
@@ -142,19 +145,19 @@ class Plane {
 }
 
 
-
-
 class Dispatcher {
     private final Set<Plane> planes;
     private final Set<Plane> planesPendingLanding;
 
     public Dispatcher() {
-        planes = new HashSet<Plane>();
-        planesPendingLanding = new HashSet<Plane>();
+        planes = new HashSet<>();
+        planesPendingLanding = new HashSet<>();
     }
+
     public synchronized void requestLanding(Plane plane) {
         planesPendingLanding.add(plane);
     }
+
     public synchronized Image getMap(Plane plane) {
         Image image = new Image(plane);
         for (Plane plane1 : planes)
